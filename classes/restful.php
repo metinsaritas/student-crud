@@ -15,10 +15,10 @@ class RESTfulController extends Controller {
     }
 
     public function list () {
-        $model = $this->getModel();
-        $data = $model->getAll();
+        $tableName = get_class($this);
+        $bean = strtolower($tableName).'s';
         
-        $this->view($tableName, [$bean => $data]);
+        $this->view("template", ["page" => $bean]);
     }
 
     public function all () {
