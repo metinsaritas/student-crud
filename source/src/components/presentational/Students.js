@@ -18,7 +18,8 @@ class Students extends Component {
       data: [],
 
       currentPagination: 1,
-      searchText: ""
+      searchText: "",
+      filter: "student"
     }
 
   }
@@ -34,12 +35,21 @@ class Students extends Component {
   }
 
   componentDidMount() {
+    let elems = document.querySelectorAll('select');
+    M.FormSelect.init(elems);
+
     this.getData()
   }
 
   handleChange = (event) => {
     this.setState({
       searchText: event.target.value
+    })
+  }
+
+  handleFilterChange = (event) => {
+    this.setState({
+      filter: event.target.value
     })
   }
 
@@ -53,9 +63,21 @@ class Students extends Component {
     return (
       <span>
         <div className="nav-wrapper">
-          <div className="input-field">
-            <input id="search" onChange={this.handleChange} value={this.state.searchText} type="search" placeholder="Search..." required />
-            <label className="label-icon" htmlFor="search"><i className="material-icons">search</i></label>
+          <div className="row s12">
+            <div className="input-field col s6">
+              <select onChange={this.handleFilterChange}>
+                <option value="student">Student Name</option>
+                <option value="course">Course Name</option>
+                <option value="classroom">Classroom Name</option>
+              </select>
+              <label>Search by</label>
+            </div>
+
+            <div className="input-field col s6">
+              <input id="search" onChange={this.handleChange} value={this.state.searchText} type="search" placeholder="Search..." required />
+              <label className="label-icon" htmlFor="search"><i className="material-icons">search</i></label>
+            </div>
+
           </div>
         </div>
 
@@ -63,29 +85,72 @@ class Students extends Component {
           <thead>
             <tr>
               <th className="center"><i className="material-icons" style={styles.button}>add</i></th>
-              <th>Total</th>
+              <th>Row</th>
               <th>Name</th>
               <th>Surname</th>
+              <th className="center">Courses</th>
             </tr>
           </thead>
 
           <tbody>
             {
               this.state.data
-                .map((student, i) =>
-                  !student.name.toString().toLowerCase().includes(this.state.searchText.toLowerCase()) ||
-                  <tr key={i}>
-                    <td className="center">
-                      <i onClick={this.handleRemove.bind(this, student.id)}
-                         className="material-icons red-text" title="Delete" style={styles.button}>delete</i>
-                      &nbsp;&nbsp;
+                .map((student, i) => {
+
+                  const lowerSearchText = this.state.searchText.toLowerCase()
+
+                  switch (this.state.filter) {
+                    case "student":
+                      if (!student.name.toLowerCase()
+                        .includes(lowerSearchText)) return null;
+                      break;
+                    case "course":
+                      if (student.courses.filter(data => data.courseName.toLowerCase()
+                        .includes(lowerSearchText)).length <= 0) return null;
+                      break;
+                    case "classroom":
+                      if (student.courses.filter(data => data.classroomName.toLowerCase()
+                        .includes(lowerSearchText)).length <= 0) return null;
+                      break;
+                  }
+
+                  return (
+
+                    <tr key={i}>
+                      <td className="center">
+                        <i onClick={this.handleRemove.bind(this, student.id)}
+                          className="material-icons red-text" title="Delete" style={styles.button}>delete</i>
+                        &nbsp;&nbsp;
                       <i className="material-icons blue-text" title="Edit" style={styles.button}>edit</i>
-                    </td>
-                    <td>{startOffset + i + 1}</td>
-                    <td>{student.name}</td>
-                    <td>{student.surname}</td>
-                  </tr>
-                )
+                      </td>
+                      <td>{startOffset + i + 1}</td>
+                      <td>{student.name}</td>
+                      <td>{student.surname}</td>
+                      <td>
+
+                        <table className="striped">
+                          <thead>
+                            <tr>
+                              <th>Course Name</th>
+                              <th>Classroom Name</th>
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            {
+                              student.courses.map((course, i) =>
+                                <tr key={i}>
+                                  <td>{course.courseName}</td>
+                                  <td>{course.classroomName}</td>
+                                </tr>
+                              )
+                            }
+                          </tbody>
+                        </table>
+
+                      </td>
+                    </tr>)
+                })
             }
           </tbody>
         </table>
@@ -98,8 +163,8 @@ class Students extends Component {
 
   handlePaginationOnClick = (i) => {
     this.setState({ searchText: "" })
-    if (i === -1) 
-    return this.setState({currentPagination: 0}, this.listAll())
+    if (i === -1)
+      return this.setState({ currentPagination: 0 }, this.listAll())
 
     this.setState({ currentPagination: i }, this.getData)
   }
@@ -111,22 +176,22 @@ class Students extends Component {
   handleRemove = (id) => {
     if (!confirm("Are sure to delete this record?")) return
 
-    fetch(`/api/student/${id}`, {method: "DELETE"})
-    .then(result => result.json())
-    .then(json => {
-      if (!json.status)
-        return alert(json.message || "An error occured.")
-      
-      this.setState(prevState => {
-        return {
-          //total: prevState.total - 1,
-          data: prevState.data.filter(data => data.id !== id)
-        }
+    fetch(`/api/student/${id}`, { method: "DELETE" })
+      .then(result => result.json())
+      .then(json => {
+        if (!json.status)
+          return alert(json.message || "An error occured.")
+
+        this.setState(prevState => {
+          return {
+            //total: prevState.total - 1,
+            data: prevState.data.filter(data => data.id !== id)
+          }
+        })
       })
-    })
-    .catch(err => {
-      alert(err.message)
-    })
+      .catch(err => {
+        alert(err.message)
+      })
   }
 }
 

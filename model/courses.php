@@ -8,12 +8,24 @@ class Courses extends Model {
     }
 
     public function getPaged ($page = 1, $sql = null) {
-        $sql = "SELECT C.id, C.name, R.name AS classroomName FROM courses AS C INNER JOIN classrooms AS R ON C.classroom_id = R.id";
+        if ($page <= 0) {
+            $page = 1;
+        }
+
+        $tableName = get_class($this);
+        $limit = 5;
+        $next = ($page - 1) * $limit;
+        $bean = strtolower($tableName);
+        $total = R::count($bean);
+
+        $sql = "SELECT C.id, C.name, R.name AS classroomName FROM courses AS C INNER JOIN classrooms AS R ON C.classroom_id = R.id
+                LIMIT $next, $limit";
         return parent::getPaged($page, $sql);
     }
 
     public function get ($id, $sql = null) {
-        $sql = "SELECT C.id, C.name, R.name AS classroomName FROM courses AS C INNER JOIN classrooms AS R ON C.classroom_id = R.id";
+        $sql = "SELECT C.id, C.name, R.name AS classroomName FROM courses AS C INNER JOIN classrooms AS R ON C.classroom_id = R.id
+                WHERE C.id = $id";
         return parent::get($id, $sql);
     }
 

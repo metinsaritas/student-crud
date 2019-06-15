@@ -2,6 +2,74 @@
 
 class Students extends Model {
 
+    public function getAll($sql = null) {
+        $sql = "SELECT S.*, C.name AS courseName, R.name AS classroomName FROM students AS S INNER JOIN stakesc AS Re ON S.id = Re.student_id INNER JOIN courses AS C ON C.id = Re.course_id INNER JOIN classrooms AS R ON R.id = C.classroom_id";
+        $result = parent::getAll($sql);
+        $data = [
+            "total" => 0,
+            "data" => $this->combine($result["data"])
+        ];
+        $data["total"] = count($data["data"]);
+        return $data;
+    }
+
+    public function getPaged ($page = 1, $sql = null) {
+        if ($page <= 0) {
+            $page = 1;
+        }
+
+        $tableName = get_class($this);
+        $limit = 5;
+        $next = ($page - 1) * $limit;
+        $bean = strtolower($tableName);
+        $total = R::count($bean);
+
+        $sql = "SELECT S.*, C.name AS courseName, R.name AS classroomName FROM students AS S INNER JOIN stakesc AS Re ON S.id = Re.student_id INNER JOIN courses AS C ON C.id = Re.course_id INNER JOIN classrooms AS R ON R.id = C.classroom_id";
+        
+        $result = parent::getPaged($page, $sql);
+        $combined = $this->combine($result["data"]);
+        $limited = array_slice($combined, $next, $limit);
+        $data = [
+            "total" => $result["total"],
+            "data" => $limited
+        ];
+        return $data; 
+    }
+
+    public function get ($id, $sql = null) {
+        $sql = "SELECT S.*, C.name AS courseName, R.name AS classroomName FROM students AS S INNER JOIN stakesc AS Re ON S.id = Re.student_id INNER JOIN courses AS C ON C.id = Re.course_id INNER JOIN classrooms AS R ON R.id = C.classroom_id
+                WHERE S.id = $id";
+        return $this->combine(parent::get($id, $sql))[0];
+    }
+
+    private function combine ($arr) {
+        $combined = [];
+        foreach ($arr as $data):
+            $id = $data["id"];
+            $name = $data["name"];
+            $surname = $data["surname"];
+            $courseName = $data["courseName"];
+            $classroomName = $data["classroomName"];
+            
+            if (!isset($combined[$id])):
+                $combined[$id] = [
+                    "id" => $id,
+                    "name"=> $name,
+                    "surname"=> $surname,
+                    "courses" => [],
+                ];
+            endif;
+
+            $combined[$id]["courses"][] = [
+                "courseName" => $courseName,
+                "classroomName" => $classroomName
+            ];
+
+            
+        endforeach;
+        return array_values($combined);
+    }
+
     public function update ($id, $newData) {
         $data = $this->retrieve($id);
 

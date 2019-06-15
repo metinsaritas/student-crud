@@ -64,7 +64,7 @@ class Classrooms extends Component {
           <thead>
             <tr>
               <th className="center"><i className="material-icons" style={styles.button}>add</i></th>
-              <th>Total</th>
+              <th>Row</th>
               <th>Name</th>
             </tr>
           </thead>

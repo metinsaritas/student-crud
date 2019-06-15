@@ -41,8 +41,8 @@ class Model
         if ($total <= 0)
             return $data;
 
-        if ($sql == null) $sql = "SELECT * FROM {$tableName}";
-        $data["data"] = R::getAll("$sql LIMIT $next, $limit");           
+        if ($sql == null) $sql = "SELECT * FROM {$tableName} LIMIT $next, $limit";
+        $data["data"] = R::getAll($sql);
        
         return $data;
     }
@@ -52,7 +52,7 @@ class Model
         $bean = strtolower($tableName);
 
         if ($sql == null) $sql = "SELECT * FROM {$tableName} WHERE id = $id";
-        return R::getAll("$sql LIMIT 0, 1")[0];
+        return R::getAll($sql);
     }
 
     public function retrieve ($id) {

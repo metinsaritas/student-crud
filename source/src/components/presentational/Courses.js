@@ -18,7 +18,8 @@ class Courses extends Component {
       data: [],
 
       currentPagination: 1,
-      searchText: ""
+      searchText: "",
+      filter: "course"
     }
 
   }
@@ -34,12 +35,21 @@ class Courses extends Component {
   }
 
   componentDidMount() {
+    let elems = document.querySelectorAll('select');
+    M.FormSelect.init(elems);
+
     this.getData()
   }
 
   handleChange = (event) => {
     this.setState({
       searchText: event.target.value
+    })
+  }
+
+  handleFilterChange = (event) => {
+    this.setState({
+      filter: event.target.value
     })
   }
 
@@ -54,9 +64,20 @@ class Courses extends Component {
       <span>
 
         <div className="nav-wrapper">
-          <div className="input-field">
-            <input id="search" onChange={this.handleChange} value={this.state.searchText} type="search" placeholder="Search..." required />
-            <label className="label-icon" htmlFor="search"><i className="material-icons">search</i></label>
+          <div className="row s12">
+            <div className="input-field col s6">
+              <select onChange={this.handleFilterChange}>
+                <option value="course">Course Name</option>
+                <option value="classroom">Classroom Name</option>
+              </select>
+              <label>Search by</label>
+            </div>
+
+            <div className="input-field col s6">
+              <input id="search" onChange={this.handleChange} value={this.state.searchText} type="search" placeholder="Search..." required />
+              <label className="label-icon" htmlFor="search"><i className="material-icons">search</i></label>
+            </div>
+
           </div>
         </div>
 
@@ -64,7 +85,7 @@ class Courses extends Component {
           <thead>
             <tr>
               <th className="center"><i className="material-icons" style={styles.button}>add</i></th>
-              <th>Total</th>
+              <th>Row</th>
               <th>Name</th>
               <th>Classroom Name</th>
             </tr>
@@ -73,20 +94,31 @@ class Courses extends Component {
           <tbody>
             {
               this.state.data
-                .map((course, i) =>
-                  !course.name.toString().toLowerCase().includes(this.state.searchText.toLowerCase()) ||
-                  <tr key={i}>
-                    <td className="center">
-                      <i onClick={this.handleRemove.bind(this, course.id)}
-                         className="material-icons red-text" title="Delete" style={styles.button}>delete</i>
-                      &nbsp;&nbsp;
-                      <i className="material-icons blue-text" title="Edit" style={styles.button}>edit</i>
-                    </td>
-                    <td>{startOffset + i + 1}</td>
-                    <td>{course.name}</td>
-                    <td>{course.classroomName}</td>
-                  </tr>
-                )
+                .map((course, i) => {
+
+                  switch (this.state.filter) {
+                    case "course":
+                      if (!course.name.toString().toLowerCase().includes(this.state.searchText.toLowerCase())) return null
+                      break;
+                    case "classroom":
+                      if (!course.classroomName.toString().toLowerCase().includes(this.state.searchText.toLowerCase())) return null
+                      break;
+                  }
+
+                  return (
+                    <tr key={i}>
+                      <td className="center">
+                        <i onClick={this.handleRemove.bind(this, course.id)}
+                          className="material-icons red-text" title="Delete" style={styles.button}>delete</i>
+                        &nbsp;&nbsp;
+                        <i className="material-icons blue-text" title="Edit" style={styles.button}>edit</i>
+                      </td>
+                      <td>{startOffset + i + 1}</td>
+                      <td>{course.name}</td>
+                      <td>{course.classroomName}</td>
+                    </tr>
+                  )
+                })
             }
           </tbody>
         </table>
@@ -99,8 +131,8 @@ class Courses extends Component {
 
   handlePaginationOnClick = (i) => {
     this.setState({ searchText: "" })
-    if (i === -1) 
-    return this.setState({currentPagination: 0}, this.listAll())
+    if (i === -1)
+      return this.setState({ currentPagination: 0 }, this.listAll())
 
     this.setState({ currentPagination: i }, this.getData)
   }
@@ -112,22 +144,22 @@ class Courses extends Component {
   handleRemove = (id) => {
     if (!confirm("Are sure to delete this record?")) return
 
-    fetch(`/api/course/${id}`, {method: "DELETE"})
-    .then(result => result.json())
-    .then(json => {
-      if (!json.status)
-        return alert(json.message || "An error occured.")
-      
-      this.setState(prevState => {
-        return {
-          //total: prevState.total - 1,
-          data: prevState.data.filter(data => data.id !== id)
-        }
+    fetch(`/api/course/${id}`, { method: "DELETE" })
+      .then(result => result.json())
+      .then(json => {
+        if (!json.status)
+          return alert(json.message || "An error occured.")
+
+        this.setState(prevState => {
+          return {
+            //total: prevState.total - 1,
+            data: prevState.data.filter(data => data.id !== id)
+          }
+        })
       })
-    })
-    .catch(err => {
-      alert(err.message)
-    })
+      .catch(err => {
+        alert(err.message)
+      })
   }
 }
 
