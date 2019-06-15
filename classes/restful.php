@@ -49,7 +49,7 @@ class RESTfulController extends Controller {
 
     public function delete ($id) {
         $model = $this->getModel();
-        $data = $model->delete($id);
+        $result = $model->delete($id);
         $this->json($result);
     }
 
