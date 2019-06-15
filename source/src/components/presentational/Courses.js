@@ -2,6 +2,12 @@ import React, { Component } from "react"
 
 import Pagination from "../Pagination"
 
+const styles = {
+  button: {
+    cursor: 'pointer'
+  }
+}
+
 class Courses extends Component {
 
   constructor() {
@@ -57,6 +63,7 @@ class Courses extends Component {
         <table className="striped">
           <thead>
             <tr>
+              <th className="center"><i className="material-icons" style={styles.button}>add</i></th>
               <th>Total</th>
               <th>Name</th>
               <th>Classroom Name</th>
@@ -69,6 +76,12 @@ class Courses extends Component {
                 .map((course, i) =>
                   !course.name.toString().toLowerCase().includes(this.state.searchText.toLowerCase()) ||
                   <tr key={i}>
+                    <td className="center">
+                      <i onClick={this.handleRemove.bind(this, course.id)}
+                         className="material-icons red-text" title="Delete" style={styles.button}>delete</i>
+                      &nbsp;&nbsp;
+                      <i className="material-icons blue-text" title="Edit" style={styles.button}>edit</i>
+                    </td>
                     <td>{startOffset + i + 1}</td>
                     <td>{course.name}</td>
                     <td>{course.classroomName}</td>
@@ -85,6 +98,7 @@ class Courses extends Component {
   }
 
   handlePaginationOnClick = (i) => {
+    this.setState({ searchText: "" })
     if (i === -1) 
     return this.setState({currentPagination: 0}, this.listAll())
 
@@ -93,6 +107,27 @@ class Courses extends Component {
 
   listAll = () => {
     this.getData("/api/courses")
+  }
+
+  handleRemove = (id) => {
+    if (!confirm("Are sure to delete this record?")) return
+
+    fetch(`/api/course/${id}`, {method: "DELETE"})
+    .then(result => result.json())
+    .then(json => {
+      if (!json.status)
+        return alert(json.message || "An error occured.")
+      
+      this.setState(prevState => {
+        return {
+          //total: prevState.total - 1,
+          data: prevState.data.filter(data => data.id !== id)
+        }
+      })
+    })
+    .catch(err => {
+      alert(err.message)
+    })
   }
 }
 
