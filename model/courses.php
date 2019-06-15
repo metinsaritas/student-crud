@@ -2,6 +2,21 @@
 
 class Courses extends Model {
 
+    public function getAll($sql = null) {
+        $sql = "SELECT C.id, C.name, R.name AS classroomName FROM courses AS C INNER JOIN classrooms AS R ON C.classroom_id = R.id";
+        return parent::getAll($sql);
+    }
+
+    public function getPaged ($page = 1, $sql = null) {
+        $sql = "SELECT C.id, C.name, R.name AS classroomName FROM courses AS C INNER JOIN classrooms AS R ON C.classroom_id = R.id";
+        return parent::getPaged($page, $sql);
+    }
+
+    public function get ($id, $sql = null) {
+        $sql = "SELECT C.id, C.name, R.name AS classroomName FROM courses AS C INNER JOIN classrooms AS R ON C.classroom_id = R.id";
+        return parent::get($id, $sql);
+    }
+
     public function update ($id, $newData) {
         $data = $this->retrieve($id);
 

@@ -42,16 +42,17 @@ class Courses extends Component {
             <tr>
               <th>#</th>
               <th>Name</th>
-              <th>Surname</th>
+              <th>Classroom Name</th>
             </tr>
           </thead>
 
           <tbody>
             {
-              this.state.data.map((student, i) =>
+              this.state.data.map((course, i) =>
                 <tr key={i}>
                   <td>{startOffset + i + 1}</td>
-                  <td>{student.name}</td>
+                  <td>{course.name}</td>
+                  <td>{course.classroomName}</td>
                 </tr>
               )
             }

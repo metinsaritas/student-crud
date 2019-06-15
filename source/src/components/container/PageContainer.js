@@ -15,7 +15,7 @@ class PageContainer extends Component {
       <Router>        
         <nav className="light-blue lighten-1" role="navigation">
           <div className="nav-wrapper container">
-            <a href="#" className="brand-logo">
+            <a href="/" className="brand-logo">
               <i className="material-icons">school</i> Student CRUD
             </a>
 

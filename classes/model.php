@@ -2,13 +2,15 @@
 
 class Model
 {
-    public function getAll()
+    public function getAll($sql = null)
     {
         $tableName = get_class($this);
-        return R::getAll("SELECT * FROM {$tableName}");
+        if ($sql == null) $sql = "SELECT * FROM {$tableName}";
+
+        return R::getAll($sql);
     }
 
-    public function getPaged($page = 1)
+    public function getPaged($page = 1, $sql = null)
     {
         if ($page <= 0) {
             $page = 1;
@@ -27,15 +29,18 @@ class Model
         if ($total <= 0)
             return $data;
 
-        $data["data"] = R::getAll("SELECT * FROM {$tableName} LIMIT $next, $limit");           
+        if ($sql == null) $sql = "SELECT * FROM {$tableName}";
+        $data["data"] = R::getAll("$sql LIMIT $next, $limit");           
        
         return $data;
     }
 
-    public function get ($id) {
+    public function get ($id, $sql = null) {
         $tableName = get_class($this);
         $bean = strtolower($tableName);
-        return R::findOne($bean, "id = $id");
+
+        if ($sql == null) $sql = "SELECT * FROM {$tableName} WHERE id = $id";
+        return R::getAll("$sql LIMIT 0, 1")[0];
     }
 
     public function retrieve ($id) {
