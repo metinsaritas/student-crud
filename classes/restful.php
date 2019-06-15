@@ -2,66 +2,62 @@
 
 class RESTfulController extends Controller {
 
-    public function list () {
+    protected function getModel () {
         $tableName = get_class($this);
         $bean = strtolower($tableName).'s';
         $model = $this->model($bean);
+        return $model;
+    }
+    
+    protected function json ($json) {
+        header('Content-Type: application/json');
+        echo json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    }
+
+    public function list () {
+        $model = $this->getModel();
         $data = $model->getAll();
         
         $this->view($tableName, [$bean => $data]);
     }
 
     public function all () {
-        $tableName = get_class($this);
-        $bean = strtolower($tableName).'s';
-        $model = $this->model($bean);
+        $model = $this->getModel();
         $data = $model->getAll();
-        header('Content-Type: application/json');
-        echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $this->json($data);
     }
 
     public function paged ($page) {
-        $tableName = get_class($this);
-        $bean = strtolower($tableName).'s';
-        $model = $this->model($bean);
+        $model = $this->getModel();
         $data = $model->getPaged($page);
-        header('Content-Type: application/json');
-        echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $this->json($data);
     }
 
     public function single ($id) {
-        $tableName = get_class($this);
-        $bean = strtolower($tableName).'s';
-        $model = $this->model($bean);
+        $model = $this->getModel();
         $data = $model->get($id);
         header('Content-Type: application/json');
-        echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $this->json($data);
     }
 
     public function update ($id) {
-        $tableName = get_class($this);
-        $bean = strtolower($tableName).'s';
-        $model = $this->model($bean);
+        $model = $this->getModel();
         $newData = json_decode(file_get_contents("php://input"), true);
         $result = $model->update($id, $newData);
-        echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $this->json($result);
     }
 
     public function delete ($id) {
-        $tableName = get_class($this);
-        $bean = strtolower($tableName).'s';
-        $model = $this->model($bean);
+        $model = $this->getModel();
         $data = $model->delete($id);
-        header('Content-Type: application/json');
-        echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $this->json($result);
     }
 
     public function insert () {
-        $tableName = get_class($this);
-        $bean = strtolower($tableName).'s';
-        $model = $this->model($bean);
+        $model = $this->getModel();
         $newData = json_decode(file_get_contents("php://input"), true);
         $result = $model->insert($newData);
-        echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $this->json($result);
     }
+
 }
