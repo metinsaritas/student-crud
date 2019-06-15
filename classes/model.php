@@ -7,7 +7,19 @@ class Model
         $tableName = get_class($this);
         if ($sql == null) $sql = "SELECT * FROM {$tableName}";
 
-        return R::getAll($sql);
+        $bean = strtolower($tableName);
+        $data = [
+            "total" => 0,
+            "data" => []
+        ];
+
+        $data["data"] = R::getAll($sql);
+        $total = $data["total"] = count($data["data"]);
+
+        if ($total <= 0)
+            return $data;
+
+        return $data;
     }
 
     public function getPaged($page = 1, $sql = null)

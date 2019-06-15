@@ -15,7 +15,11 @@ class Pagination extends Component {
         const pageCount = Math.ceil(total / limit)
 
         return (
-            <ul className="pagination center-align">
+            <ul className="pagination center-align" style={{marginTop: 40}}>
+                <li className="waves-effect" 
+                    className={0 == currentPagination ? "active" : "waves-effect"}
+                    onClick={() => handleClick(-1)}><a href="#!">List All</a></li>
+
                 {
                     Array(pageCount).fill().map((val, i) => {
                         const className = (i + 1) == currentPagination ? "active" : "waves-effect"

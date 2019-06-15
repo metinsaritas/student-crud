@@ -11,13 +11,15 @@ class Students extends Component {
       total: 0,
       data: [],
 
-      currentPagination: 1
+      currentPagination: 1,
+      searchText: ""
     }
 
   }
 
-  getData = () => {
-    fetch(`/api/students/${this.state.currentPagination}`)
+  getData = (path) => {
+    path = path ? path : `/api/students/${this.state.currentPagination}`
+    fetch(path)
       .then(d => d.json())
       .then(json => this.setState({ ...json }))
       .catch(e => {
@@ -29,18 +31,32 @@ class Students extends Component {
     this.getData()
   }
 
+  handleChange = (event) => {
+    this.setState({
+      searchText: event.target.value
+    })
+  }
+
   render() {
     let { currentPagination, total } = this.state
-    currentPagination = currentPagination <= 0 ? 1 : currentPagination
+    currentPagination = currentPagination < 0 ? 1 : currentPagination
 
-    const startOffset = 5 * (currentPagination - 1)
+    let currInteger = currentPagination <= 0 ? 1 : currentPagination
+    const startOffset = 5 * (currInteger - 1)
 
     return (
       <span>
+        <div className="nav-wrapper">
+          <div className="input-field">
+            <input id="search" onChange={this.handleChange} value={this.state.searchText} type="search" placeholder="Search..." required />
+            <label className="label-icon" htmlFor="search"><i className="material-icons">search</i></label>
+          </div>
+        </div>
+
         <table className="striped">
           <thead>
             <tr>
-              <th>#</th>
+              <th>Total</th>
               <th>Name</th>
               <th>Surname</th>
             </tr>
@@ -48,25 +64,34 @@ class Students extends Component {
 
           <tbody>
             {
-              this.state.data.map((student, i) =>
-                <tr key={i}>
-                  <td>{startOffset + i + 1}</td>
-                  <td>{student.name}</td>
-                  <td>{student.surname}</td>
-                </tr>
-              )
+              this.state.data
+                .map((student, i) =>
+                  !student.name.toString().toLowerCase().includes(this.state.searchText.toLowerCase()) ||
+                  <tr key={i}>
+                    <td>{startOffset + i + 1}</td>
+                    <td>{student.name}</td>
+                    <td>{student.surname}</td>
+                  </tr>
+                )
             }
           </tbody>
         </table>
-        
-        <Pagination limit={5} total={total} currentPagination={currentPagination} onClick={this.handlePaginationOnClick}/>
+
+        <Pagination limit={5} total={total} currentPagination={currentPagination} onClick={this.handlePaginationOnClick} />
       </span>
     )
 
   }
 
   handlePaginationOnClick = (i) => {
-    this.setState({currentPagination: i}, this.getData)
+    if (i === -1) 
+    return this.setState({currentPagination: 0}, this.listAll())
+
+    this.setState({ currentPagination: i }, this.getData)
+  }
+
+  listAll = () => {
+    this.getData("/api/students")
   }
 }
 

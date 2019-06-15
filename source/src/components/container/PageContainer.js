@@ -5,6 +5,47 @@ import Students from "../presentational/Students"
 import Courses from "../presentational/Courses";
 import Classrooms from "../presentational/Classrooms";
 
+const styles = {
+  iconSize: { 
+    fontSize: 104
+  }
+}
+
+class Main extends Component {
+
+  render () {
+    return (
+    <div className="container" style={{marginTop: 100}}>
+      <div className="section">
+        <div className="row">
+          <div className="col s12 m4">
+            <Link to="/students" className="icon-block">
+              <h2 className="center light-blue-text"><i style={styles.iconSize} className="material-icons">face</i></h2>
+              <h5 className="center">Students</h5>
+            </Link>
+          </div>
+
+          <div className="col s12 m4">
+            <Link to="/courses" className="icon-block">
+              <h2 className="center light-blue-text"><i style={styles.iconSize} className="material-icons">card_travel</i></h2>
+              <h5 className="center">Courses</h5>
+            </Link>
+          </div>
+
+          <div className="col s12 m4">
+            <Link to="/classrooms" className="icon-block">
+              <h2 className="center light-blue-text"><i style={styles.iconSize} className="material-icons">home</i></h2>
+              <h5 className="center">Classrooms</h5>
+            </Link>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    )
+  }
+}
+
 class PageContainer extends Component {
   constructor() {
     super()
@@ -36,7 +77,7 @@ class PageContainer extends Component {
 
         <div className="section no-pad-bot">
           <div className="container">
-          <Route exact path="/" component={null} />
+          <Route exact path="/" component={Main} />
           <Route path="/students" component={Students} />
           <Route path="/courses" component={Courses} />
           <Route path="/classrooms" component={Classrooms} />
