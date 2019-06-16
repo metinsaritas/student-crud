@@ -3,7 +3,7 @@
 class Students extends Model {
 
     public function getAll($sql = null) {
-        $sql = "SELECT S.*, C.name AS courseName, C.id AS courseId, R.name AS classroomName FROM students AS S LEFT JOIN stakesc AS Re ON S.id = Re.student_id LEFT JOIN courses AS C ON C.id = Re.course_id LEFT JOIN classrooms AS R ON R.id = C.classroom_id";
+        $sql = "SELECT S.*, C.name AS courseName, C.id AS courseId, R.name AS classroomName FROM students AS S LEFT JOIN stakesc AS Re ON S.id = Re.student_id LEFT JOIN courses AS C ON C.id = Re.course_id LEFT JOIN classrooms AS R ON R.id = C.classroom_id ORDER BY S.id DESC";
         $result = parent::getAll($sql);
         $data = [
             "total" => 0,
@@ -24,7 +24,7 @@ class Students extends Model {
         $bean = strtolower($tableName);
         $total = R::count($bean);
 
-        $sql = "SELECT S.*, C.name AS courseName, C.id AS courseId, R.name AS classroomName FROM students AS S LEFT JOIN stakesc AS Re ON S.id = Re.student_id LEFT JOIN courses AS C ON C.id = Re.course_id LEFT JOIN classrooms AS R ON R.id = C.classroom_id";
+        $sql = "SELECT S.*, C.name AS courseName, C.id AS courseId, R.name AS classroomName FROM students AS S LEFT JOIN stakesc AS Re ON S.id = Re.student_id LEFT JOIN courses AS C ON C.id = Re.course_id LEFT JOIN classrooms AS R ON R.id = C.classroom_id ORDER BY S.id DESC";
         
         $result = parent::getPaged($page, $sql);
         $combined = $this->combine($result["data"]);
@@ -37,7 +37,7 @@ class Students extends Model {
     }
 
     public function get ($id, $sql = null) {
-        $sql = "SELECT S.*, C.name AS courseName, C.id AS courseId, R.name AS classroomName FROM students AS S LEFT JOIN stakesc AS Re ON S.id = Re.student_id LEFT JOIN courses AS C ON C.id = Re.course_id LEFT JOIN classrooms AS R ON R.id = C.classroom_id
+        $sql = "SELECT S.*, C.name AS courseName, C.id AS courseId, R.name AS classroomName FROM students AS S LEFT JOIN stakesc AS Re ON S.id = Re.student_id LEFT JOIN courses AS C ON C.id = Re.course_id LEFT JOIN classrooms AS R ON R.id = C.classroom_id ORDER BY S.id DESC
                 WHERE S.id = $id";
 
         $arr = $this->combine(parent::get($id, $sql));
@@ -148,7 +148,8 @@ class Students extends Model {
         $new = R::dispense($bean);
         $new->name = $this->isset($newData, "name", $new->name);
         $new->surname = $this->isset($newData, "surname", $new->surname);
-        
+
+        $id = 0;
         try {
             $id = R::store($new);
         } catch (Exception $e) {
@@ -157,6 +158,28 @@ class Students extends Model {
                 "message" => $e->getMessage()
             ];
         }
+
+        if (isset($newData["courses"]) && is_array($newData["courses"])) {
+
+            $courses = $newData["courses"];
+            
+            $availableCourses = [];
+            foreach ($courses as $cid):
+                $count = R::count("courses", "id = $cid");
+                if ($count >= 1) {
+                    $availableCourses[] = "($id, $cid)";
+                }
+            endforeach;
+
+            try {
+                $values = implode(", ", $availableCourses);
+                
+                $sql = "INSERT INTO stakesc (student_id, course_id) VALUES $values";
+                R::getAll($sql);
+            }
+            catch (Exception $e) {}
+        }
+        
 
         return [
             "status" => true,

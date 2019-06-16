@@ -1,6 +1,6 @@
 import React, { Component } from "react"
 
-class EditClassroom extends Component {
+class InsertClassroom extends Component {
 
     state = {
         loaded: 1,
@@ -9,24 +9,7 @@ class EditClassroom extends Component {
     }
 
     componentDidMount() {
-        const { match: { params } } = this.props
-        const { id } = params
 
-        this.getData(id)
-    }
-
-    getData = (id) => {
-        fetch(`/api/classroom/${id}`)
-            .then(result => result.json())
-            .then(json => {
-                if (!json) throw new Error("Couldn't find record")
-
-                this.setState({ ...json })
-            })
-            .catch(e => this.setState(prevState => ({ errMessage: prevState.errMessage + e.message })))
-            .finally(_ => {
-                this.setState((prevState) => ({ loaded: prevState.loaded + 1 }), M.updateTextFields)
-            })
     }
 
     handleChange = (key, event) => {
@@ -36,11 +19,9 @@ class EditClassroom extends Component {
     }
 
     handleSave = () => {
-        const { match: { params } } = this.props
-        const { id } = params
-
-        fetch(`/api/classroom/${id}`, {
-            method: "PUT",
+        
+        fetch(`/api/classroom`, {
+            method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
@@ -64,10 +45,8 @@ class EditClassroom extends Component {
     }
 
     render() {
-        const { match: { params } } = this.props
-        const { id } = params
         return (
-            this.state.loaded <= 1 ? <span>Loading...</span> :
+            this.state.loaded <= 0 ? <span>Loading...</span> :
                 (this.state.errMessage ? <span>{this.state.errMessage}</span> :
                     (
                         <div className="row">
@@ -94,4 +73,4 @@ class EditClassroom extends Component {
     }
 }
 
-export default EditClassroom
+export default InsertClassroom

@@ -85,7 +85,9 @@ class Courses extends Component {
         <table className="striped">
           <thead>
             <tr>
-              <th className="center"><i className="material-icons" style={styles.button}>add</i></th>
+              <th className="center">
+                <Link to="/course/new"><i title="Add new" className="material-icons" style={styles.button}>add</i></Link>
+              </th>
               <th>Row</th>
               <th>Name</th>
               <th>Classroom Name</th>

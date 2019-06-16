@@ -1,6 +1,6 @@
 import React, { Component } from "react"
 
-class EditCourse extends Component {
+class InsertCourse extends Component {
 
     state = {
         loaded: 1,
@@ -12,11 +12,7 @@ class EditCourse extends Component {
     }
 
     componentDidMount() {
-        const { match: { params } } = this.props
-        const { id } = params
-
         this.getClassroomList()
-        this.getData(id)
     }
 
     getClassroomList = () => {
@@ -39,20 +35,6 @@ class EditCourse extends Component {
             })
     }
 
-    getData = (id) => {
-        fetch(`/api/course/${id}`)
-            .then(result => result.json())
-            .then(json => {
-                if (!json) throw new Error("Couldn't find record")
-
-                this.setState({ ...json })
-            })
-            .catch(e => this.setState(prevState => ({ errMessage: prevState.errMessage + e.message })))
-            .finally(_ => {
-                this.setState((prevState) => ({ loaded: prevState.loaded + 1 }), M.updateTextFields)
-            })
-    }
-
     handleChange = (key, event) => {
         this.setState({
             [key]: event.target.value
@@ -60,11 +42,9 @@ class EditCourse extends Component {
     }
 
     handleSave = () => {
-        const { match: { params } } = this.props
-        const { id } = params
 
-        fetch(`/api/course/${id}`, {
-            method: "PUT",
+        fetch(`/api/course`, {
+            method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
@@ -94,10 +74,8 @@ class EditCourse extends Component {
     }
 
     render() {
-        const { match: { params } } = this.props
-        const { id } = params
         return (
-            this.state.loaded <= 2 ? <span>Loading...</span> :
+            this.state.loaded <= 1 ? <span>Loading...</span> :
                 (this.state.errMessage ? <span>{this.state.errMessage}</span> :
                     (
                         <div className="row">
@@ -132,7 +110,7 @@ class EditCourse extends Component {
                                     false && this.state.courseList.map((course, i) =>
                                         <div className="row" key={i}>
                                             <label>
-                                                <input type="checkbox" onChange={() => true} defaultChecked={this.state.courses.filter(c => c.courseId == course.id).length > 0} className="filled-in" />
+                                                <input type="checkbox" onChange={() => true} className="filled-in" />
                                                 <span>{course.name}</span>
                                             </label>
                                         </div>
@@ -148,4 +126,4 @@ class EditCourse extends Component {
     }
 }
 
-export default EditCourse
+export default InsertCourse

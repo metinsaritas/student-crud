@@ -9,6 +9,10 @@ import EditStudent from "../presentational/EditStudent"
 import EditCourse from "../presentational/EditCourse"
 import EditClassroom from "../presentational/EditClassroom"
 
+import InsertStudent from "../presentational/InsertStudent"
+import InsertCourse from "../presentational/InsertCourse"
+import InsertClassroom from "../presentational/InsertClassroom"
+
 import Main from "../container/Main"
 
 class PageContainer extends Component {
@@ -47,9 +51,13 @@ class PageContainer extends Component {
             <Route path="/courses" component={Courses} />
             <Route path="/classrooms" component={Classrooms} />
 
-            <Route path="/student/edit/:id"   component={EditStudent} />
-            <Route path="/course/edit/:id"    component={EditCourse} />
+            <Route path="/student/edit/:id" component={EditStudent} />
+            <Route path="/course/edit/:id" component={EditCourse} />
             <Route path="/classroom/edit/:id" component={EditClassroom} />
+
+            <Route path="/student/new" component={InsertStudent} />
+            <Route path="/course/new" component={InsertCourse} />
+            <Route path="/classroom/new" component={InsertClassroom} />
           </div>
         </div>
       </Router>

@@ -28,6 +28,13 @@ class RESTfulController extends Controller {
         $this->view("template", ["page" => $bean]);
     }
 
+    public function new () {
+        $tableName = get_class($this);
+        $bean = strtolower($tableName).'s';
+        
+        $this->view("template", ["page" => $bean]);
+    }
+
     public function all () {
         $model = $this->getModel();
         $data = $model->getAll();
