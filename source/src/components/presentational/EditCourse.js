@@ -76,7 +76,7 @@ class EditCourse extends Component {
         .then(result => result.json())
         .then(json => {
             if (!json.status) 
-                throw new Exception(json.message)
+                throw new Error(json.message)
             
             alert("Saved")
         })

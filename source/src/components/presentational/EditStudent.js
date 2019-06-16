@@ -6,9 +6,15 @@ class EditStudent extends Component {
         loaded: 1,
         errMessage: "",
         name: "",
+        surname: "",
         courses: [],
 
         courseList: []
+    }
+
+    constructor() {
+        super()
+        this.courseRefs = []
     }
 
     componentDidMount() {
@@ -54,7 +60,37 @@ class EditStudent extends Component {
     }
 
     handleSave = () => {
-        
+        const { match: { params } } = this.props
+        const { id } = params
+
+        let courses = []
+
+        this.courseRefs.forEach((courseRef, i) => {
+            const { ref: el, id } = courseRef
+            if (el.checked) {
+                courses.push(id)
+            }
+        })
+
+        fetch(`/api/student/${id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                name: this.state.name,
+                surname: this.state.surname,
+                courses
+            })
+        })
+            .then(result => result.json())
+            .then(json => {
+                if (!json.status)
+                    throw new Error(json.message)
+
+                alert("Saved")
+            })
+            .catch(e => alert(e.message))
     }
 
     handleCancel = () => {
@@ -86,9 +122,9 @@ class EditStudent extends Component {
                                 </div>
 
                                 <div className="row">
-                                    <a onClick={this.handleCancel}  className="waves-effect waves-light btn"><i className="material-icons left">arrow_back</i>Back</a>
+                                    <a onClick={this.handleCancel} className="waves-effect waves-light btn"><i className="material-icons left">arrow_back</i>Back</a>
                                     &nbsp;&nbsp;
-                                    <a onClick={this.handleSave}    className="waves-effect waves-light btn"><i className="material-icons left">save</i>Save</a>
+                                    <a onClick={this.handleSave} className="waves-effect waves-light btn"><i className="material-icons left">save</i>Save</a>
                                 </div>
                             </div>
 
@@ -97,7 +133,9 @@ class EditStudent extends Component {
                                     this.state.courseList.map((course, i) =>
                                         <div className="row" key={i}>
                                             <label>
-                                                <input type="checkbox" onChange={() => true} defaultChecked={this.state.courses.filter(c => c.courseId == course.id).length > 0} name="courses[]" className="filled-in" />
+                                                <input type="checkbox" ref={(ref) => { this.courseRefs[i] = { id: course.id, ref }; return true; }} onChange={() => true}
+                                                    defaultChecked={this.state.courses.filter(c => c.courseId == course.id).length > 0} className="filled-in" />
+
                                                 <span>{course.name}</span>
                                             </label>
                                         </div>

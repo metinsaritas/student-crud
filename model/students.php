@@ -3,7 +3,7 @@
 class Students extends Model {
 
     public function getAll($sql = null) {
-        $sql = "SELECT S.*, C.name AS courseName, C.id AS courseId, R.name AS classroomName FROM students AS S INNER JOIN stakesc AS Re ON S.id = Re.student_id INNER JOIN courses AS C ON C.id = Re.course_id INNER JOIN classrooms AS R ON R.id = C.classroom_id";
+        $sql = "SELECT S.*, C.name AS courseName, C.id AS courseId, R.name AS classroomName FROM students AS S LEFT JOIN stakesc AS Re ON S.id = Re.student_id LEFT JOIN courses AS C ON C.id = Re.course_id LEFT JOIN classrooms AS R ON R.id = C.classroom_id";
         $result = parent::getAll($sql);
         $data = [
             "total" => 0,
@@ -24,7 +24,7 @@ class Students extends Model {
         $bean = strtolower($tableName);
         $total = R::count($bean);
 
-        $sql = "SELECT S.*, C.name AS courseName, C.id AS courseId, R.name AS classroomName FROM students AS S INNER JOIN stakesc AS Re ON S.id = Re.student_id INNER JOIN courses AS C ON C.id = Re.course_id INNER JOIN classrooms AS R ON R.id = C.classroom_id";
+        $sql = "SELECT S.*, C.name AS courseName, C.id AS courseId, R.name AS classroomName FROM students AS S LEFT JOIN stakesc AS Re ON S.id = Re.student_id LEFT JOIN courses AS C ON C.id = Re.course_id LEFT JOIN classrooms AS R ON R.id = C.classroom_id";
         
         $result = parent::getPaged($page, $sql);
         $combined = $this->combine($result["data"]);
@@ -37,7 +37,7 @@ class Students extends Model {
     }
 
     public function get ($id, $sql = null) {
-        $sql = "SELECT S.*, C.name AS courseName, C.id AS courseId, R.name AS classroomName FROM students AS S INNER JOIN stakesc AS Re ON S.id = Re.student_id INNER JOIN courses AS C ON C.id = Re.course_id INNER JOIN classrooms AS R ON R.id = C.classroom_id
+        $sql = "SELECT S.*, C.name AS courseName, C.id AS courseId, R.name AS classroomName FROM students AS S LEFT JOIN stakesc AS Re ON S.id = Re.student_id LEFT JOIN courses AS C ON C.id = Re.course_id LEFT JOIN classrooms AS R ON R.id = C.classroom_id
                 WHERE S.id = $id";
 
         $arr = $this->combine(parent::get($id, $sql));
@@ -85,6 +85,27 @@ class Students extends Model {
 
         $data->name =    $this->isset($newData, "name", $data->name);
         $data->surname = $this->isset($newData, "surname", $data->surname);
+
+        if (isset($newData["courses"]) && is_array($newData["courses"])) {
+
+            $courses = $newData["courses"];
+            R::getAll("DELETE FROM stakesc WHERE student_id = $id");
+            $availableCourses = [];
+            foreach ($courses as $cid):
+                $count = R::count("courses", "id = $cid");
+                if ($count >= 1) {
+                    $availableCourses[] = "($id, $cid)";
+                }
+            endforeach;
+
+            try {
+                $values = implode(", ", $availableCourses);
+                
+                $sql = "INSERT INTO stakesc (student_id, course_id) VALUES $values";
+                R::getAll($sql);
+            }
+            catch (Exception $e) {}
+        }
 
         $newId = R::store($data);
         return [
