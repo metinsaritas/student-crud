@@ -2,6 +2,11 @@
 
 class Classrooms extends Model {
 
+    public function get ($id, $sql = null) {
+        $arr = parent::get($id, $sql);
+        return count($arr) <= 0 ? null : $arr[0];
+    }
+
     public function update ($id, $newData) {
         $data = $this->retrieve($id);
 

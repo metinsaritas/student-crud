@@ -1,6 +1,7 @@
 import React, { Component } from "react"
 
 import Pagination from "../Pagination"
+import { Link } from "react-router-dom"
 
 const styles = {
   button: {
@@ -77,9 +78,11 @@ class Classrooms extends Component {
                   <tr key={i}>
                     <td className="center">
                       <i onClick={this.handleRemove.bind(this, classroom.id)}
-                          className="material-icons red-text" title="Delete" style={styles.button}>delete</i>
+                        className="material-icons red-text" title="Delete" style={styles.button}>delete</i>
                       &nbsp;&nbsp;
-                      <i className="material-icons blue-text" title="Edit" style={styles.button}>edit</i>
+                      <Link to={`/classroom/edit/${classroom.id}`}>
+                        <i className="material-icons blue-text" title="Edit" style={styles.button}>edit</i>
+                      </Link>
                     </td>
                     <td>{startOffset + i + 1}</td>
                     <td>{classroom.name}</td>
@@ -97,9 +100,9 @@ class Classrooms extends Component {
 
   handlePaginationOnClick = (i) => {
     this.setState({ searchText: "" })
-    if (i === -1) 
-    return this.setState({currentPagination: 0}, this.listAll())
-       
+    if (i === -1)
+      return this.setState({ currentPagination: 0 }, this.listAll())
+
     this.setState({ currentPagination: i }, this.getData)
   }
 
@@ -108,24 +111,24 @@ class Classrooms extends Component {
   }
 
   handleRemove = (id) => {
-    if (!confirm("Are sure to delete this record?")) return
+    if (!confirm("Are you sure to delete this record?")) return
 
-    fetch(`/api/classroom/${id}`, {method: "DELETE"})
-    .then(result => result.json())
-    .then(json => {
-      if (!json.status)
-        return alert(json.message || "An error occured.")
-      
-      this.setState(prevState => {
-        return {
-          //total: prevState.total - 1,
-          data: prevState.data.filter(data => data.id !== id)
-        }
+    fetch(`/api/classroom/${id}`, { method: "DELETE" })
+      .then(result => result.json())
+      .then(json => {
+        if (!json.status)
+          throw new Error(json.message || "An error occured.")
+
+        this.setState(prevState => {
+          return {
+            //total: prevState.total - 1,
+            data: prevState.data.filter(data => data.id !== id)
+          }
+        })
       })
-    })
-    .catch(err => {
-      alert(err.message)
-    })
+      .catch(e => {
+        alert(e.message)
+      })
   }
 }
 

@@ -3,7 +3,7 @@
 class Students extends Model {
 
     public function getAll($sql = null) {
-        $sql = "SELECT S.*, C.name AS courseName, R.name AS classroomName FROM students AS S INNER JOIN stakesc AS Re ON S.id = Re.student_id INNER JOIN courses AS C ON C.id = Re.course_id INNER JOIN classrooms AS R ON R.id = C.classroom_id";
+        $sql = "SELECT S.*, C.name AS courseName, C.id AS courseId, R.name AS classroomName FROM students AS S INNER JOIN stakesc AS Re ON S.id = Re.student_id INNER JOIN courses AS C ON C.id = Re.course_id INNER JOIN classrooms AS R ON R.id = C.classroom_id";
         $result = parent::getAll($sql);
         $data = [
             "total" => 0,
@@ -24,7 +24,7 @@ class Students extends Model {
         $bean = strtolower($tableName);
         $total = R::count($bean);
 
-        $sql = "SELECT S.*, C.name AS courseName, R.name AS classroomName FROM students AS S INNER JOIN stakesc AS Re ON S.id = Re.student_id INNER JOIN courses AS C ON C.id = Re.course_id INNER JOIN classrooms AS R ON R.id = C.classroom_id";
+        $sql = "SELECT S.*, C.name AS courseName, C.id AS courseId, R.name AS classroomName FROM students AS S INNER JOIN stakesc AS Re ON S.id = Re.student_id INNER JOIN courses AS C ON C.id = Re.course_id INNER JOIN classrooms AS R ON R.id = C.classroom_id";
         
         $result = parent::getPaged($page, $sql);
         $combined = $this->combine($result["data"]);
@@ -37,9 +37,11 @@ class Students extends Model {
     }
 
     public function get ($id, $sql = null) {
-        $sql = "SELECT S.*, C.name AS courseName, R.name AS classroomName FROM students AS S INNER JOIN stakesc AS Re ON S.id = Re.student_id INNER JOIN courses AS C ON C.id = Re.course_id INNER JOIN classrooms AS R ON R.id = C.classroom_id
+        $sql = "SELECT S.*, C.name AS courseName, C.id AS courseId, R.name AS classroomName FROM students AS S INNER JOIN stakesc AS Re ON S.id = Re.student_id INNER JOIN courses AS C ON C.id = Re.course_id INNER JOIN classrooms AS R ON R.id = C.classroom_id
                 WHERE S.id = $id";
-        return $this->combine(parent::get($id, $sql))[0];
+
+        $arr = $this->combine(parent::get($id, $sql));
+        return count($arr) <= 0 ? null : $arr[0];
     }
 
     private function combine ($arr) {
@@ -50,6 +52,7 @@ class Students extends Model {
             $surname = $data["surname"];
             $courseName = $data["courseName"];
             $classroomName = $data["classroomName"];
+            $courseId = $data["courseId"];
             
             if (!isset($combined[$id])):
                 $combined[$id] = [
@@ -62,7 +65,8 @@ class Students extends Model {
 
             $combined[$id]["courses"][] = [
                 "courseName" => $courseName,
-                "classroomName" => $classroomName
+                "classroomName" => $classroomName,
+                "courseId" => $courseId
             ];
 
             

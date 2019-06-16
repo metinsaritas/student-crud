@@ -1,6 +1,7 @@
 import React, { Component } from "react"
 
 import Pagination from "../Pagination"
+import { Link } from "react-router-dom"
 
 const styles = {
   button: {
@@ -35,8 +36,8 @@ class Courses extends Component {
   }
 
   componentDidMount() {
-    let elems = document.querySelectorAll('select');
-    M.FormSelect.init(elems);
+    let elems = document.querySelectorAll('select')
+    M.FormSelect.init(elems)
 
     this.getData()
   }
@@ -111,7 +112,9 @@ class Courses extends Component {
                         <i onClick={this.handleRemove.bind(this, course.id)}
                           className="material-icons red-text" title="Delete" style={styles.button}>delete</i>
                         &nbsp;&nbsp;
-                        <i className="material-icons blue-text" title="Edit" style={styles.button}>edit</i>
+                        <Link to={`/course/edit/${course.id}`}>
+                          <i className="material-icons blue-text" title="Edit" style={styles.button}>edit</i>
+                        </Link>
                       </td>
                       <td>{startOffset + i + 1}</td>
                       <td>{course.name}</td>
@@ -142,13 +145,13 @@ class Courses extends Component {
   }
 
   handleRemove = (id) => {
-    if (!confirm("Are sure to delete this record?")) return
+    if (!confirm("Are you sure to delete this record?")) return
 
     fetch(`/api/course/${id}`, { method: "DELETE" })
       .then(result => result.json())
       .then(json => {
         if (!json.status)
-          return alert(json.message || "An error occured.")
+          throw new Error(json.message || "An error occured.")
 
         this.setState(prevState => {
           return {
@@ -157,8 +160,8 @@ class Courses extends Component {
           }
         })
       })
-      .catch(err => {
-        alert(err.message)
+      .catch(e => {
+        alert(e.message)
       })
   }
 }

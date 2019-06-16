@@ -3,7 +3,7 @@
 class Courses extends Model {
 
     public function getAll($sql = null) {
-        $sql = "SELECT C.id, C.name, R.name AS classroomName FROM courses AS C INNER JOIN classrooms AS R ON C.classroom_id = R.id";
+        $sql = "SELECT C.id, C.name, R.name AS classroomName, R.id AS classroomId FROM courses AS C INNER JOIN classrooms AS R ON C.classroom_id = R.id";
         return parent::getAll($sql);
     }
 
@@ -18,15 +18,16 @@ class Courses extends Model {
         $bean = strtolower($tableName);
         $total = R::count($bean);
 
-        $sql = "SELECT C.id, C.name, R.name AS classroomName FROM courses AS C INNER JOIN classrooms AS R ON C.classroom_id = R.id
+        $sql = "SELECT C.id, C.name, R.name AS classroomName, R.id AS classroomId FROM courses AS C INNER JOIN classrooms AS R ON C.classroom_id = R.id
                 LIMIT $next, $limit";
         return parent::getPaged($page, $sql);
     }
 
     public function get ($id, $sql = null) {
-        $sql = "SELECT C.id, C.name, R.name AS classroomName FROM courses AS C INNER JOIN classrooms AS R ON C.classroom_id = R.id
+        $sql = "SELECT C.id, C.name, R.name AS classroomName, R.id AS classroomId FROM courses AS C INNER JOIN classrooms AS R ON C.classroom_id = R.id
                 WHERE C.id = $id";
-        return parent::get($id, $sql);
+        $arr = parent::get($id, $sql);
+        return count($arr) <= 0 ? null : $arr[0];
     }
 
     public function update ($id, $newData) {
